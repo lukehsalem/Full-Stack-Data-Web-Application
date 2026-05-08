@@ -1,13 +1,14 @@
 import json
-
 import pandas as pd
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-
-from .models import Repository, User, Language
+from .models import Repository, User, Language, NbaStat, AnalysisLog
 from .forms import RepositoryForm
+from django.core.management import call_command
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 
 
 # ---------------------------------------------------------------------------
@@ -115,13 +116,8 @@ def analytics(request):
     df = pd.DataFrame(list(qs))
 
     # Fallback for empty DB
-    if df.empty:
-        return render(request, 'core/analytics.html', {
-            'summary': {},
-            'top_repos_json': json.dumps({'labels': [], 'values': []}),
-            'language_json': json.dumps({'labels': [], 'values': []}),
-            'empty': True,
-        })
+    if df.empty and NbaStat.objects.count() == 0:
+        return render(request, 'core/analytics.html', {'empty': True, 'nba_empty': True})
 
     # --- Aggregation 1: top 10 repos by stars (bar chart) ---
     top_repos = df.nlargest(10, 'stars')
@@ -170,10 +166,75 @@ def analytics(request):
                 'min': row['min'],
                 'max': row['max'],
             }
+            
+    # NBA Data Processing
+    # Aggregate avg stars by language
+    if not lang_counts.empty:
+        avg_by_lang = (
+            df.dropna(subset=['language__name'])
+              .groupby('language__name')['stars']
+              .agg(['count', 'mean', 'min', 'max'])
+        )
+        for lang, row in avg_by_lang.iterrows():
+            summary[f'Stars ({lang})'] = {
+                'count': row['count'],
+                'mean': row['mean'],
+                'min': row['min'],
+                'max': row['max'],
+            }
+            
+    # ==========================================
+    # NBA Data Processing
+    # ==========================================
+    qs_nba = NbaStat.objects.all().values('player', 'year', 'pts', 'eff', 'ast', 'reb')
+    df_nba = pd.DataFrame(list(qs_nba))
+
+    nba_context = {'nba_empty': True}
+
+    if not df_nba.empty:
+        # Summary Statistics Table (Aggregation 1) - computing count, mean, min, and max
+        nba_summary = df_nba[['pts', 'eff', 'ast', 'reb']].agg(['count', 'mean', 'min', 'max']).round(2)
+        
+        # Who is the most efficient? (Aggregation 2) - grouping by player to find the top 10 highest avg efficiency ratings
+        top_eff = df_nba.groupby('player')['eff'].mean().nlargest(10).reset_index()
+        eff_bar_data = {
+            'labels': top_eff['player'].tolist(),
+            'values': top_eff['eff'].round(2).tolist()
+        }
+        
+        # Are scoring and efficiency related? (Aggregation 3) - grouping by player to get avg PTS and EFF (Scatter plot)
+        pts_eff_scatter = df_nba.groupby('player')[['pts', 'eff']].mean().reset_index()
+        scatter_data = [{'x': round(row['pts'], 2), 'y': round(row['eff'], 2)} for _, row in pts_eff_scatter.iterrows()]
+
+        nba_context.update({
+            'nba_summary_stats': nba_summary.to_dict(),
+            'eff_bar_json': json.dumps(eff_bar_data),
+            'scatter_json': json.dumps(scatter_data),
+            'nba_empty': False,
+        })
+
+    # Fetch logs
+    logs = AnalysisLog.objects.all().order_by('-date_created')
 
     return render(request, 'core/analytics.html', {
         'summary': summary,
         'top_repos_json': json.dumps(top_repos_data),
         'language_json': json.dumps(language_data),
-        'empty': False,
+        'empty': df.empty,
+        **nba_context, 
+        'logs': logs,
     })
+
+# ---------------------------------------------------------------------------
+# API Fetch Endpoint (staff/POST only)
+# ---------------------------------------------------------------------------
+@staff_member_required
+@require_POST
+def trigger_fetch(request):
+    try:
+        call_command('fetch_data')
+        messages.success(request, 'Successfully fetched latest data from GitHub API!')
+    except Exception as e:
+        messages.error(request, f'Error fetching data: {str(e)}')
+    
+    return redirect('repo_list')

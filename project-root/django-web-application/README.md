@@ -23,9 +23,9 @@ data in a meaningful way (from Project 1) in a web application based on the Djan
 - Detailed View of Basketball Repositories
     - Shows a detailed description of the basketball related Github repository of interest
 - Analytics Page
-    - Utilizes pandas module to create meaningful aggregations of basketball data from the NBA 2000-2009 seasons
-    - Charts to visualize basketball data from the dataset in a meaningful way
-    - Summary statistics table of basketball data from the dataset (which includes count, mean, min, max)
+    - Utilizes pandas module to create meaningful aggregations of basketball related repositories
+    - Charts to visualize data from basketball related repositories (stars, language, etc.)
+    - Summary statistics table of basketball related repositories (which includes count, mean, min, max)
 - UI
     - Implements Bootstrap 5 UI features and CSS to style pages
 
@@ -33,21 +33,25 @@ data in a meaningful way (from Project 1) in a web application based on the Djan
 1. First clone the repository with `git clone repositoryURL`  
 2. Install the requirements/dependencies with `pip install -r requirements.txt`  
 3. Migrate all models with `python manage.py migrate` 
-4. Get API data with `python manage.py seed_data` 
-5. Load models with `python manage.py load_data`
+4. Get API data with `python manage.py fetch_data` 
+5. Load models with `python manage.py seed_data`
 6. Finally, run the server locally with `python manage.py runserver`
 
 ## Screenshots
-TO BE IMPLEMENTED  
-Homepage
+Homepage  
+![Home Page](screenshots/homepage.png)  
+List View  
+![List View](screenshots/listview.png)  
+Analytics Dashboard  
+![Analytics Dashboard](screenshots/analyticsdashboard.png)  
+Security (manage.py check --deploy)
+![Deploy Check](screenshots/securitycheck.png)  
 
-List View
-
-Analytics Dashboard
+## Project Demonstration
+Matthew Chen - [Youtube Link](https://youtu.be/9kQBsbywEdc)
 
 ## Contributions
-Matthew Chen - Framework Setup/Repository Structure, README, Basic URL Routing, Models ORM
-Tony Guillen - implemented bootsrap 5 ui and css to style the pages
-Eric Pengili - Security, settings, deployment readiness
-Luke Salem - Analytics Dashboard and added second and third models along with the seed script and analytics.html contributions
-
+Matthew Chen - Framework Setup/Repository Structure, README, Basic URL Routing, Models ORM, fetch_data.py, seed_data.py 
+Tony Guillen - Templates HTML Implementation, Bootstrap 5 UI, CSS, Charts  
+Eric Pengili - Security, Settings, Deployment Readiness, Alternative MyApp application  
+Luke Salem - Analytics Dashboard, Models ORM, Charts  
