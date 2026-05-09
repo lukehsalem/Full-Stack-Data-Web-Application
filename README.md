@@ -195,8 +195,6 @@ project-root/
 
 ## Authors
 
-Built collaboratively for **CIS4930 (Introduction to Python)** at Florida State University.
-
 | Name | GitHub | Primary Contributions |
 | --- | --- | --- |
 | **Luke Salem** | [@lukehsalem](https://github.com/lukehsalem) | Analytics dashboard, Pandas aggregations, Chart.js integration, Models ORM, advanced error handling, retries, and CLI arguments for the data pipeline |
