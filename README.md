@@ -197,7 +197,7 @@ project-root/
 
 | Name | GitHub | Primary Contributions |
 | --- | --- | --- |
-| **Luke Salem** | [@lukehsalem](https://github.com/lukehsalem) | Analytics dashboard, Pandas aggregations, Chart.js integration, Models ORM, advanced error handling, retries, and CLI arguments for the data pipeline |
+| **Luke Salem** | [@lukehsalem](https://github.com/lukehsalem) | Analytics dashboard, Pandas aggregations, Chart.js integration, ORM Models, advanced error handling, retries, and CLI arguments for the data pipeline |
 | **Matthew Chen** | [@mchenrep](https://github.com/mchenrep) | Framework setup, repository structure, URL routing, ORM models, `fetch_data.py`, `seed_data.py`, data loading and transformation |
 | **Eric Pengili** | [@sicc-ranchezz](https://github.com/sicc-ranchezz) | Security and deployment readiness, settings, `api_client.py`, `storage.py`, alternative analysis notebook, file structure |
 | **Tony Guillen** | [@tonyguil1](https://github.com/tonyguil1) | HTML templates, Bootstrap 5 UI, CSS, charts, data visualization, API response transformation |
